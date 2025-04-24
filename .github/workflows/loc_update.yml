@@ -1,0 +1,41 @@
+name: Update LOC Stats & Cache
+
+on:
+  schedule:
+    # runs approx every 4 days (1st, 5th, 9th...) at midnight utc
+    - cron: '0 0 1,5,9,13,17,21,25,29 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update_loc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r .github/workflows/requirements.txt
+
+      - name: Run LOC script
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
+        run: python .github/workflows/count_loc.py
+
+      - name: Commit and push cache changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .github/workflows/cache.txt
+          # commit only if there are changes
+          git diff --staged --quiet || git commit -m "chore: update loc cache"
+          git push 
