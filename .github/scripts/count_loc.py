@@ -297,7 +297,7 @@ def calculate_loc_stats(affiliations, author_id_dict):
     return total_add, total_del
 
 
-def update_readme(additions, deletions, net):
+def update_readme(additions, deletions, net, timestamp):
     try:
         with open(README_PATH, "r") as f:
             content = f.read()
@@ -312,6 +312,10 @@ def update_readme(additions, deletions, net):
             (
                 r"that's a net of \*\*[\d,]+\*\* lines still running somewhere in the world\.",
                 f"that's a net of **{net_str}** lines still running somewhere in the world.",
+            ),
+            (
+                r"<!-- last updated: \d+ -->",
+                f"<!-- last updated: {int(timestamp)} -->",
             ),
         ]
 
@@ -340,7 +344,7 @@ if __name__ == "__main__":
             f"Added: {additions:,} | Deleted: {deletions:,} | Net: {net:,} | Time: {duration:.2f}s"
         )
 
-        update_readme(additions, deletions, net)
+        update_readme(additions, deletions, net, overall_end_time)
 
         if redis_client:
             try:
