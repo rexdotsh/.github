@@ -6,10 +6,10 @@
   
 </div>
 
-i've written **2,533,330** lines of code and deleted **487,208** lines.
+i've written **2,533,331** lines of code and deleted **487,209** lines.
 
 that's a net of **2,046,122** lines still running somewhere in the world.
 
-[rex.wf](https://rex.wf) • [flora.tf](https://flora.tf) • [@rexmkv](https://x.com/rexmkv) • [hey@mridul.sh](mailto:hey@mridul.sh)
+<samp>» <a href="https://rex.wf">rex.wf</a> » <a href="https://flora.tf">flora.tf</a> &nbsp;::&nbsp; » <a href="https://x.com/rexmkv">x.com/rexmkv</a> » <a href="mailto:hey@mridul.sh">hey@mridul.sh</a></samp>
 
-<!-- last updated: 1745537905 -->
+<!-- last updated: 1745539122 -->
