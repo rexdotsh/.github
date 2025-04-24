@@ -1,8 +1,10 @@
 import hashlib
 import json
 import os
+import re
 import sys
 import time
+from pathlib import Path
 
 import requests
 from upstash_redis import Redis
@@ -23,6 +25,11 @@ if missing_vars:
     for var_name in missing_vars:
         print(f"Error: Mandatory environment variable {var_name} is not set.")
     sys.exit(1)
+
+# Determine script's directory and construct paths
+SCRIPT_DIR = Path(__file__).parent.resolve()
+CACHE_PATH = SCRIPT_DIR / "cache.txt"
+README_PATH = SCRIPT_DIR.parent.parent / "README.md"  # ../../README.md
 
 HEADERS = {"authorization": f"token {ACCESS_TOKEN}"}
 AFFILIATIONS = ["OWNER", "COLLABORATOR", "ORGANIZATION_MEMBER"]
@@ -211,7 +218,7 @@ def calculate_loc_stats(affiliations, author_id_dict):
 
     # Try reading existing cache
     try:
-        with open(CACHE_FILENAME, "r") as f:
+        with open(CACHE_PATH, "r") as f:
             for line in f:
                 parts = line.strip().split()
                 if len(parts) == 4:
@@ -223,10 +230,10 @@ def calculate_loc_stats(affiliations, author_id_dict):
                 elif line.strip():
                     cache_needs_update = True
     except FileNotFoundError:
-        print("Cache file not found. Creating fresh cache.")
+        print(f"Cache file {CACHE_PATH} not found. Creating fresh cache.")
         cache_needs_update = True
     except IOError as e:
-        print(f"Error reading cache file {CACHE_FILENAME}: {e}")
+        print(f"Error reading cache file {CACHE_PATH}: {e}")
         cache_needs_update = True  # Treat read error as needing update
 
     # Check if repo list differs from cache, forcing update if needed
@@ -279,15 +286,45 @@ def calculate_loc_stats(affiliations, author_id_dict):
             )
 
     if cache_needs_update:
-        print(f"Writing updated cache to {CACHE_FILENAME}")
+        print(f"Writing updated cache to {CACHE_PATH}")
         try:
-            with open(CACHE_FILENAME, "w") as f:
+            with open(CACHE_PATH, "w") as f:
                 for h, data in final_cache_data.items():
                     f.write(f"{h} {data[0]} {data[1]} {data[2]}\n")
         except IOError as e:
-            print(f"Error writing cache file {CACHE_FILENAME}: {e}")
+            print(f"Error writing cache file {CACHE_PATH}: {e}")
 
     return total_add, total_del
+
+
+def update_readme(additions, deletions, net):
+    try:
+        with open(README_PATH, "r") as f:
+            content = f.read()
+
+        add_str, del_str, net_str = f"{additions:,}", f"{deletions:,}", f"{net:,}"
+
+        replacements = [
+            (
+                r"i've written \*\*[\d,]+\*\* lines of code and deleted \*\*[\d,]+\*\* lines\.",
+                f"i've written **{add_str}** lines of code and deleted **{del_str}** lines.",
+            ),
+            (
+                r"that's a net of \*\*[\d,]+\*\* lines still running somewhere in the world\.",
+                f"that's a net of **{net_str}** lines still running somewhere in the world.",
+            ),
+        ]
+
+        for pattern, replacement in replacements:
+            content = re.sub(pattern, replacement, content)
+
+        with open(README_PATH, "w") as f:
+            f.write(content)
+
+        print("Successfully updated LOC stats")
+
+    except Exception as e:
+        print(f"Error updating README: {e}")
 
 
 if __name__ == "__main__":
@@ -302,6 +339,8 @@ if __name__ == "__main__":
         print(
             f"Added: {additions:,} | Deleted: {deletions:,} | Net: {net:,} | Time: {duration:.2f}s"
         )
+
+        update_readme(additions, deletions, net)
 
         if redis_client:
             try:
