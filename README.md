@@ -1,6 +1,6 @@
 <div align="center">
   
-  ### `rex` /rɛks/
+  ### `mridul` /mriːdʊl/
   
   <sup><i>17M • solving problems, occasionally creating them • full stack dev • ctf player</i></sup>
   
