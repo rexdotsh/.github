@@ -40,7 +40,6 @@ REQUEST_TIMEOUT = 10
 redis_client = None
 try:
     redis_client = Redis(url=UPSTASH_URL, token=UPSTASH_TOKEN)
-    print(f"Upstash Redis client configured for URL: {UPSTASH_URL}")
 except Exception as init_err:
     print(f"Error initializing Upstash Redis client: {init_err}")
     redis_client = None
