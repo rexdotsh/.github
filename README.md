@@ -2,7 +2,7 @@
   
   ### `rex` /rɛks/
   
-  <sup><i>17M • solving problems, occasionally creating them • ctf player</i></sup>
+  <sup><i>17M • solving problems, occasionally creating them • full stack dev • ctf player</i></sup>
   
 </div>
 
